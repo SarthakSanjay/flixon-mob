@@ -13,9 +13,58 @@ export default function ContentDetails() {
           <Title />
           <Metadata />
           <WatchBtn />
+          <Genre />
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Genre() {
+  const genres = [
+    "Action",
+    "Thriller",
+    "Comedy",
+    "Adrenaline Rush",
+    "Movie",
+    "Romance",
+    "Sci-fi",
+  ];
+  return (
+    <ScrollView horizontal={true} style={styles.genreContainer}>
+      <ThemedView
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          flexDirection: "row",
+          gap: 10,
+          height: "100%",
+          width: "100%",
+          paddingInline: 4,
+        }}
+      >
+        {genres.map((genre, index) => {
+          return (
+            <>
+              <ThemedText key={index} style={{ fontSize: 14 }}>
+                {genre}
+              </ThemedText>
+              {index < genres.length - 1 && (
+                <ThemedView
+                  style={{
+                    height: "50%",
+                    width: 2,
+                    backgroundColor: "gray",
+                    borderRadius: 2,
+                  }}
+                ></ThemedView>
+              )}
+            </>
+          );
+        })}
+      </ThemedView>
+    </ScrollView>
   );
 }
 
@@ -168,5 +217,10 @@ const styles = StyleSheet.create({
     color: "black",
     flexDirection: "row",
     gap: 10,
+    marginVertical: 10,
+  },
+  genreContainer: {
+    height: 30,
+    width: "100%",
   },
 });
