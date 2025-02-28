@@ -4,6 +4,7 @@ import { FontAwesome5 } from "@expo/vector-icons";
 import { Fragment } from "react";
 import { Image, Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import ContentSlider from "./ContentSlider";
 
 export default function ContentDetails() {
   return (
@@ -17,6 +18,8 @@ export default function ContentDetails() {
           <Genre />
           <Description />
           <Controls />
+          <ContentSlider genre="Similar Movies" />
+          <ContentSlider genre="You may also like these !" />
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
