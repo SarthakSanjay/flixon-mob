@@ -1,6 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { FontAwesome5 } from "@expo/vector-icons";
+import { Fragment } from "react";
 import { Image, Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,9 +15,21 @@ export default function ContentDetails() {
           <Metadata />
           <WatchBtn />
           <Genre />
+          <Description />
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Description() {
+  return (
+    <ThemedView style={styles.description}>
+      <ThemedText style={{ fontSize: 14, color: "gray" }}>
+        A new delhi bound train turin hel on wheels when NSG commando Amrit goes
+        head to head with an army of knofe wielding thieves.
+      </ThemedText>
+    </ThemedView>
   );
 }
 
@@ -46,10 +59,8 @@ function Genre() {
       >
         {genres.map((genre, index) => {
           return (
-            <>
-              <ThemedText key={index} style={{ fontSize: 14 }}>
-                {genre}
-              </ThemedText>
+            <Fragment key={index}>
+              <ThemedText style={{ fontSize: 14 }}>{genre}</ThemedText>
               {index < genres.length - 1 && (
                 <ThemedView
                   style={{
@@ -60,7 +71,7 @@ function Genre() {
                   }}
                 ></ThemedView>
               )}
-            </>
+            </Fragment>
           );
         })}
       </ThemedView>
@@ -222,5 +233,9 @@ const styles = StyleSheet.create({
   genreContainer: {
     height: 30,
     width: "100%",
+  },
+  description: {
+    paddingInline: 5,
+    marginVertical: 10,
   },
 });
