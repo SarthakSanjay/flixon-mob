@@ -16,9 +16,29 @@ export default function ContentDetails() {
           <WatchBtn />
           <Genre />
           <Description />
+          <Controls />
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function Controls() {
+  return (
+    <ThemedView style={styles.controlsContainer}>
+      <Pressable style={styles.controlBtn}>
+        <FontAwesome5 name="plus" size={14} color={"white"} />
+        <ThemedText style={styles.controlBtnText}>My List</ThemedText>
+      </Pressable>
+      <Pressable style={styles.controlBtn}>
+        <FontAwesome5 name="share" size={14} color={"white"} />
+        <ThemedText style={styles.controlBtnText}>Share</ThemedText>
+      </Pressable>
+      <Pressable style={styles.controlBtn}>
+        <FontAwesome5 name="heart" size={14} color={"white"} />
+        <ThemedText style={styles.controlBtnText}>Like</ThemedText>
+      </Pressable>
+    </ThemedView>
   );
 }
 
@@ -237,5 +257,26 @@ const styles = StyleSheet.create({
   description: {
     paddingInline: 5,
     marginVertical: 10,
+  },
+  controlsContainer: {
+    height: 100,
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    gap: 20,
+  },
+  controlBtn: {
+    backgroundColor: "transparent",
+    height: "50%",
+    width: 50,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  controlBtnText: {
+    fontSize: 12,
+    color: "gray",
   },
 });
