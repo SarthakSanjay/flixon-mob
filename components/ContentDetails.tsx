@@ -12,21 +12,27 @@ export default function ContentDetails() {
         <ThemedView style={{ flex: 1, paddingInline: 10 }}>
           <Title />
           <Metadata />
-          <Pressable style={styles.playBtn}>
-            <FontAwesome5 name="play" size={16} />
-            <ThemedText
-              style={{
-                fontSize: 16,
-                color: "black",
-                fontWeight: 500,
-              }}
-            >
-              Watch Now
-            </ThemedText>
-          </Pressable>
+          <WatchBtn />
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function WatchBtn() {
+  return (
+    <Pressable style={styles.playBtn}>
+      <FontAwesome5 name="play" size={16} />
+      <ThemedText
+        style={{
+          fontSize: 16,
+          color: "black",
+          fontWeight: 500,
+        }}
+      >
+        Watch Now
+      </ThemedText>
+    </Pressable>
   );
 }
 function Metadata() {
