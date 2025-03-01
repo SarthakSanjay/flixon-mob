@@ -4,8 +4,14 @@ import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import ContentCard from "./ContentCard";
 
-export default function ContentSlider({ genre }: { genre: string }) {
-  const content = useContent();
+export default function ContentSlider({
+  genre,
+  type,
+}: {
+  genre: string;
+  type: string;
+}) {
+  const content = useContent(type);
   return (
     <>
       <ThemedText style={styles.sliderTitle}>{genre}</ThemedText>
@@ -20,7 +26,9 @@ export default function ContentSlider({ genre }: { genre: string }) {
         >
           <ThemedView style={styles.slider}>
             {content.map((poster, index) => {
-              return <ContentCard key={index} poster={poster} />;
+              return (
+                <ContentCard isSearched={null} key={index} poster={poster} />
+              );
             })}
           </ThemedView>
         </ThemedView>
