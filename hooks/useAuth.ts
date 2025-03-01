@@ -1,8 +1,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import * as SecureStore from "expo-secure-store";
+import Constants from "expo-constants";
 
-export function useLogin({ endpoint }: { endpoint: string }) {
+const BASE_URL = Constants?.expoConfig?.extra?.baseUrl;
+
+export function useLogin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -11,7 +14,7 @@ export function useLogin({ endpoint }: { endpoint: string }) {
     setError(null);
     try {
       const res = await axios.post(
-        `${process.env.BASE_URL}/api/${endpoint}`,
+        `${BASE_URL}/api/user/login`,
         {
           email: email,
           password: password,
@@ -34,4 +37,26 @@ export function useLogin({ endpoint }: { endpoint: string }) {
   };
 
   return { login, loading, error };
+}
+
+export function useRegister() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const register = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      const res = await axios.post(`${BASE_URL}/api/user`, {
+        email: email,
+        password: password,
+      });
+      return res.data;
+    } catch (error) {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { register, loading, error };
 }
