@@ -1,75 +1,101 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { Image, Pressable, StyleSheet, useColorScheme } from "react-native";
-import ParallaxScrollView from "@/components/ParallaxScrollView";
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { ScrollView, StyleSheet, useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Movies from "@/components/Movies";
 import Series from "@/components/Series";
-import { FontAwesome } from "@expo/vector-icons";
+import ContentCarousel from "@/components/ContentCarousel";
+import { useRecoilState, useRecoilValue } from "recoil";
+import { isSwipeEnabled, userState } from "@/atoms/atom";
+import { useRouter, useSegments } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 
 const Tab = createMaterialTopTabNavigator();
 
+function AuthCheck() {
+  const [user, setUser] = useRecoilState(userState);
+  const segments = useSegments();
+  const router = useRouter();
+
+  console.log("user", user);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      console.log("auth checking");
+      const isAuthenticated = user !== null;
+      const inAuthGroup = segments[0] === "(auth)";
+
+      if (
+        (!isAuthenticated && !inAuthGroup) ||
+        (isAuthenticated && inAuthGroup)
+      ) {
+        if (!isAuthenticated) {
+          console.log("not authenticated");
+          router.push("/(auth)/login");
+        } else {
+          console.log("authenticated");
+          router.push("/(tabs)");
+        }
+      }
+    };
+
+    checkAuth();
+  }, [user, segments]);
+
+  return null;
+}
+
 function MoviesScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <ThemedView style={styles.heroImage}>
-          <Image
-            style={{
-              height: "100%",
-              width: "100%",
-              borderRadius: 10,
-            }}
-            source={{
-              uri: "https://rukminim2.flixcart.com/image/850/1000/poster/6/p/4/posterskart-batman-movie-poster-pkbm25-medium-original-imaebcuqgzpgmmwh.jpeg?q=90&crop=false",
-            }}
-          />
-          <ThemedView style={styles.heroInnerContainer}>
-            <Pressable style={styles.playBtn}>
-              <ThemedText style={{ color: "black" }}>Play</ThemedText>
-            </Pressable>
-            <Pressable style={styles.myListBtn}>
-              <FontAwesome size={24} color={"white"} name="plus" />
-              <ThemedText>My List</ThemedText>
-            </Pressable>
-          </ThemedView>
-        </ThemedView>
-      }
-    >
+    <ScrollView style={{ flex: 1 }}>
+      <ContentCarousel type="movies" />
       <Movies />
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 
 function SeriesScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={<ThemedView style={styles.heroImage}></ThemedView>}
-    >
+    <ScrollView style={{ flex: 1 }}>
+      <ContentCarousel type="series" />
       <Series />
-    </ParallaxScrollView>
+    </ScrollView>
   );
 }
 
 export default function HomeScreen() {
   const theme = useColorScheme() ?? "light";
+  // const swipeState = useRecoilValue(isSwipeEnabled);
+
+  useEffect(() => {
+    const logToken = async () => {
+      const at = await SecureStore.getItemAsync("access_token");
+      const rt = await SecureStore.getItemAsync("refresh_token");
+
+      console.log("at", at);
+      console.log("rt", rt);
+    };
+    logToken();
+  }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <AuthCheck />
+
       <Tab.Navigator
         screenOptions={{
           tabBarActiveTintColor: Colors[theme].tint,
           tabBarStyle: {
-            backgroundColor: "transparent",
-            borderWidth: 1,
-            borderColor: "white",
+            backgroundColor: "rgba(0,0,0,0.6)",
             elevation: 0, // Remove shadow on Android
             shadowOpacity: 0, // Remove shadow on iOS
+          },
+          swipeEnabled: false,
+          tabBarIndicatorStyle: {
+            height: 4,
+            backgroundColor: "#C30101",
+            borderRadius: 5,
           },
         }}
       >
