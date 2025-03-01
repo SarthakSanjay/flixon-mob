@@ -8,7 +8,7 @@ export default function Movies() {
   return (
     <ThemedView style={styles.container}>
       {genres.map((genre, index) => {
-        return <ContentSlider key={index} genre={genre} />;
+        return <ContentSlider key={index} type="movies" genre={genre} />;
       })}
     </ThemedView>
   );
