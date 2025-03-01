@@ -2,9 +2,15 @@ import { useRouter } from "expo-router";
 import { Image, Pressable, StyleSheet } from "react-native";
 import { ThemedView } from "./ThemedView";
 
-export default function ContentCard({ poster }: { poster: string }) {
+export default function ContentCard({
+  poster,
+  isSearched,
+}: {
+  poster: string;
+  isSearched: boolean | null;
+}) {
   const router = useRouter();
-  const movie = { id: "vnlfnlsfnkl", title: "spiderman" };
+  const movie = { id: "60c72b2f9e1d3b76f8d32f8a", title: "titanic" };
   const handleMoviePress = (movie: { id: string; title: string }) => {
     router.push({
       pathname: "/movie_details",
@@ -13,7 +19,15 @@ export default function ContentCard({ poster }: { poster: string }) {
   };
   return (
     <Pressable onPress={() => handleMoviePress(movie)}>
-      <ThemedView style={styles.card}>
+      <ThemedView
+        style={[
+          styles.card,
+          {
+            height: isSearched ? 190 : 200,
+            width: isSearched ? 120 : 130,
+          },
+        ]}
+      >
         <Image style={styles.poster} source={{ uri: poster }} />
       </ThemedView>
     </Pressable>
@@ -22,8 +36,6 @@ export default function ContentCard({ poster }: { poster: string }) {
 
 const styles = StyleSheet.create({
   card: {
-    height: 200,
-    width: 130,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: "white",
