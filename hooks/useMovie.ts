@@ -5,12 +5,12 @@ import * as SecureStore from "expo-secure-store";
 import useRefresh from "./useRefresh";
 const BASE_URL = Constants?.expoConfig?.extra?.baseUrl;
 
-export function useMovieById({ id }: { id: string }) {
+export function useMovie() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { refreshToken } = useRefresh();
 
-  const getMovieById = async () => {
+  const getMovieById = async (id: string) => {
     setLoading(true);
     try {
       const accessToken = await SecureStore.getItemAsync("access_token");
@@ -25,7 +25,7 @@ export function useMovieById({ id }: { id: string }) {
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         await refreshToken();
-        return getMovieById();
+        return getMovieById(id);
       }
       setError("Could not find movie with this movie Id");
       // return error;
@@ -34,15 +34,7 @@ export function useMovieById({ id }: { id: string }) {
     }
   };
 
-  return { getMovieById, loading, error };
-}
-
-export function useMovieByGenre({ genre }: { genre: string }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const { refreshToken } = useRefresh();
-
-  const getMovies = async () => {
+  const getMoviesByGenre = async (genre: string) => {
     const accessToken = await SecureStore.getItemAsync("access_token");
 
     try {
@@ -51,11 +43,11 @@ export function useMovieByGenre({ genre }: { genre: string }) {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      return res.data;
+      return res.data.movies;
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
         await refreshToken();
-        return getMovies();
+        return getMoviesByGenre(genre);
       }
       setError("Could not find movie with this movie Id");
     } finally {
@@ -63,5 +55,5 @@ export function useMovieByGenre({ genre }: { genre: string }) {
     }
   };
 
-  return { getMovies, loading, error };
+  return { getMovieById, getMoviesByGenre, loading, error };
 }
