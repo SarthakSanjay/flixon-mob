@@ -1,25 +1,71 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { FontAwesome5 } from "@expo/vector-icons";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ContentSlider from "./ContentSlider";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useMovieById } from "@/hooks/useMovie";
+
+interface MovieImage {
+  thumbnailUrl: string;
+  screenshots: string[];
+  poster: string;
+}
+
+interface Movie {
+  _id: string;
+  name: string;
+  description: string;
+  image: MovieImage;
+  genre: string[];
+  releasedOn: number;
+  duration: number;
+  rating: number;
+  cast: string[];
+  director: string;
+  isFeatured: boolean;
+  tags: string[];
+  availablity: string[]; // Note: "availablity" is misspelled in the original data
+  ageRating: string;
+  views: number;
+  audioLanguages: string[];
+  subtitleLanguages: string[];
+  addedOn: string;
+}
 
 export default function ContentDetails() {
+  const params = useLocalSearchParams();
+  const [movie, setMovie] = useState<Movie | null>(null);
+  const { getMovieById, loading, error } = useMovieById({
+    id: `${params.id}`,
+  });
+  console.log(params.id);
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      const data = await getMovieById();
+      console.log("movie data", data);
+      setMovie(data);
+    };
+    fetchMovie();
+  }, []);
+  //
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
         <Thumbnail />
         <ThemedView style={{ flex: 1, paddingInline: 10 }}>
-          <Title />
-          <Metadata />
+          <Title title={movie?.name} />
+          <Metadata movie={movie} />
           <WatchBtn />
-          <Genre />
-          <Description />
+          <Genre genre={movie?.genre} />
+          <Description description={movie?.description} />
           <Controls />
-          <ContentSlider genre="Similar Movies" />
-          <ContentSlider genre="You may also like these !" />
+          <ContentSlider type="movies" genre="Similar Movies" />
+          <ContentSlider type="movies" genre="You may also like these !" />
         </ThemedView>
       </ScrollView>
     </SafeAreaView>
@@ -45,27 +91,17 @@ function Controls() {
   );
 }
 
-function Description() {
+function Description({ description }: { description: string | undefined }) {
   return (
     <ThemedView style={styles.description}>
       <ThemedText style={{ fontSize: 14, color: "gray" }}>
-        A new delhi bound train turin hel on wheels when NSG commando Amrit goes
-        head to head with an army of knofe wielding thieves.
+        {description}
       </ThemedText>
     </ThemedView>
   );
 }
 
-function Genre() {
-  const genres = [
-    "Action",
-    "Thriller",
-    "Comedy",
-    "Adrenaline Rush",
-    "Movie",
-    "Romance",
-    "Sci-fi",
-  ];
+function Genre({ genre }: { genre: string[] | undefined }) {
   return (
     <ScrollView horizontal={true} style={styles.genreContainer}>
       <ThemedView
@@ -80,11 +116,11 @@ function Genre() {
           paddingInline: 4,
         }}
       >
-        {genres.map((genre, index) => {
+        {genre?.map((gen, index) => {
           return (
             <Fragment key={index}>
-              <ThemedText style={{ fontSize: 14 }}>{genre}</ThemedText>
-              {index < genres.length - 1 && (
+              <ThemedText style={{ fontSize: 14 }}>{gen}</ThemedText>
+              {index < genre?.length - 1 && (
                 <ThemedView
                   style={{
                     height: "50%",
@@ -118,12 +154,12 @@ function WatchBtn() {
     </Pressable>
   );
 }
-function Metadata() {
+function Metadata({ movie }: { movie: Movie | null }) {
   return (
     <ThemedView style={styles.detailsContainer}>
       <ThemedText style={styles.category}>Blockbuster</ThemedText>
       <ThemedView style={styles.metadataContainer}>
-        <ThemedText style={styles.text}>2024</ThemedText>
+        <ThemedText style={styles.text}>{movie?.releasedOn}</ThemedText>
         <ThemedView style={styles.dot}></ThemedView>
         <ThemedView style={styles.rated}>
           <ThemedText
@@ -134,13 +170,15 @@ function Metadata() {
               fontWeight: 800,
             }}
           >
-            G
+            {movie?.ageRating}
           </ThemedText>
         </ThemedView>
         <ThemedView style={styles.dot}></ThemedView>
-        <ThemedText style={styles.text}>1h46m</ThemedText>
+        <ThemedText style={styles.text}>{movie?.duration}</ThemedText>
         <ThemedView style={styles.dot}></ThemedView>
-        <ThemedText style={styles.text}>4 Languages</ThemedText>
+        <ThemedText style={styles.text}>
+          {movie?.audioLanguages.length} Languages
+        </ThemedText>
       </ThemedView>
     </ThemedView>
   );
@@ -159,7 +197,7 @@ function Thumbnail() {
   );
 }
 
-function Title() {
+function Title({ title }: { title: string | undefined }) {
   return (
     <ThemedView style={styles.titleContainer}>
       <Image
