@@ -5,58 +5,32 @@ import { Fragment, useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ContentSlider from "./ContentSlider";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMovieById } from "@/hooks/useMovie";
-
-interface MovieImage {
-  thumbnailUrl: string;
-  screenshots: string[];
-  poster: string;
-}
-
-interface Movie {
-  _id: string;
-  name: string;
-  description: string;
-  image: MovieImage;
-  genre: string[];
-  releasedOn: number;
-  duration: number;
-  rating: number;
-  cast: string[];
-  director: string;
-  isFeatured: boolean;
-  tags: string[];
-  availablity: string[]; // Note: "availablity" is misspelled in the original data
-  ageRating: string;
-  views: number;
-  audioLanguages: string[];
-  subtitleLanguages: string[];
-  addedOn: string;
-}
+import { useLocalSearchParams } from "expo-router";
+import { Movie } from "@/types/movie";
+import { useMovie } from "@/hooks/useMovie";
+import Loading from "./Loading";
 
 export default function ContentDetails() {
   const params = useLocalSearchParams();
   const [movie, setMovie] = useState<Movie | null>(null);
-  const { getMovieById, loading, error } = useMovieById({
-    id: `${params.id}`,
-  });
-  console.log(params.id);
+  const { getMovieById, loading, error } = useMovie();
 
   useEffect(() => {
     const fetchMovie = async () => {
-      const data = await getMovieById();
-      console.log("movie data", data);
+      const data = await getMovieById(params.id as string);
       setMovie(data);
     };
     fetchMovie();
   }, []);
-  //
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ScrollView style={styles.container}>
-        <Thumbnail />
+        <Thumbnail thumbnail={movie?.image.thumbnailUrl} />
         <ThemedView style={{ flex: 1, paddingInline: 10 }}>
           <Title title={movie?.name} />
           <Metadata movie={movie} />
@@ -184,12 +158,12 @@ function Metadata({ movie }: { movie: Movie | null }) {
   );
 }
 
-function Thumbnail() {
+function Thumbnail({ thumbnail }: { thumbnail: string | undefined }) {
   return (
     <ThemedView style={styles.thumbnailContainer}>
       <Image
         source={{
-          uri: "https://tgtrs.wordpress.com/wp-content/uploads/2021/09/unnamed-1.jpg",
+          uri: thumbnail,
         }}
         style={styles.thumbnail}
       />
