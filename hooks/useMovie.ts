@@ -34,7 +34,7 @@ export function useMovie() {
     }
   };
 
-  const getMoviesByGenre = async (genre: string) => {
+  const getMoviesByGenre = async (genre: string, limit: number) => {
     const accessToken = await SecureStore.getItemAsync("access_token");
 
     try {
@@ -42,12 +42,16 @@ export function useMovie() {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
+        data: {
+          limit: limit,
+        },
       });
       return res.data.movies;
     } catch (error: any) {
       if (error.response && error.response.status === 401) {
+        console.log("refreshing");
         await refreshToken();
-        return getMoviesByGenre(genre);
+        return getMoviesByGenre(genre, limit);
       }
       setError("Could not find movie with this movie Id");
     } finally {
