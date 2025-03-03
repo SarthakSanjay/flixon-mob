@@ -1,49 +1,85 @@
 import React, { useEffect } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { ScrollView, StyleSheet, useColorScheme } from "react-native";
+import { RefreshControl, ScrollView, useColorScheme } from "react-native";
 import { Colors } from "@/constants/Colors";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Movies from "@/components/Movies";
 import Series from "@/components/Series";
 import ContentCarousel from "@/components/ContentCarousel";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { isSwipeEnabled, userState } from "@/atoms/atom";
 import { useRouter, useSegments } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+import { useAuthCheck } from "@/hooks/useAuth";
+import Loading from "@/components/Loading";
 
 const Tab = createMaterialTopTabNavigator();
 
-function AuthCheck() {
-  const [user, setUser] = useRecoilState(userState);
-  const segments = useSegments();
+export default function HomeScreen() {
+  const theme = useColorScheme() ?? "light";
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    checkAuth();
+    setRefreshing(true);
+    setTimeout(() => {
+      setRefreshing(false);
+    }, 2000);
+  }, []);
+  const { isAuthenticated, checkAuth, loading, error } = useAuthCheck();
   const router = useRouter();
 
-  console.log("user", user);
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      console.log("auth checking");
-      const isAuthenticated = user !== null;
-      const inAuthGroup = segments[0] === "(auth)";
-
-      if (
-        (!isAuthenticated && !inAuthGroup) ||
-        (isAuthenticated && inAuthGroup)
-      ) {
+    setTimeout(() => {
+      if (!loading) {
         if (!isAuthenticated) {
-          console.log("not authenticated");
-          router.push("/(auth)/login");
+          console.log("Not authenticated, redirecting...");
+          router.replace("/(auth)/login");
         } else {
-          console.log("authenticated");
-          router.push("/(tabs)");
+          console.log("Authenticated, redirecting...");
+          router.replace("/(tabs)");
         }
       }
-    };
+    }, 3000);
+  }, [isAuthenticated, loading]);
 
-    checkAuth();
-  }, [user, segments]);
+  if (loading) {
+    return <Loading />;
+  }
 
-  return null;
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{
+          flex: 1,
+        }}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <Tab.Navigator
+          screenOptions={{
+            tabBarActiveTintColor: Colors[theme].tint,
+            tabBarStyle: {
+              backgroundColor: "rgba(0,0,0,0.6)",
+              elevation: 0, // Remove shadow on Android
+              shadowOpacity: 0, // Remove shadow on iOS
+            },
+            swipeEnabled: false,
+            tabBarIndicatorStyle: {
+              height: 4,
+              backgroundColor: "black",
+              borderRadius: 5,
+            },
+          }}
+        >
+          <Tab.Screen name="Movies" component={MoviesScreen} />
+          <Tab.Screen name="Series" component={SeriesScreen} />
+        </Tab.Navigator>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
 
 function MoviesScreen() {
@@ -63,93 +99,3 @@ function SeriesScreen() {
     </ScrollView>
   );
 }
-
-export default function HomeScreen() {
-  const theme = useColorScheme() ?? "light";
-  // const swipeState = useRecoilValue(isSwipeEnabled);
-
-  useEffect(() => {
-    const logToken = async () => {
-      const at = await SecureStore.getItemAsync("access_token");
-      const rt = await SecureStore.getItemAsync("refresh_token");
-
-      console.log("at", at);
-      console.log("rt", rt);
-    };
-    logToken();
-  }, []);
-
-  return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <AuthCheck />
-
-      <Tab.Navigator
-        screenOptions={{
-          tabBarActiveTintColor: Colors[theme].tint,
-          tabBarStyle: {
-            backgroundColor: "rgba(0,0,0,0.6)",
-            elevation: 0, // Remove shadow on Android
-            shadowOpacity: 0, // Remove shadow on iOS
-          },
-          swipeEnabled: false,
-          tabBarIndicatorStyle: {
-            height: 4,
-            backgroundColor: "#C30101",
-            borderRadius: 5,
-          },
-        }}
-      >
-        <Tab.Screen name="Movies" component={MoviesScreen} />
-        <Tab.Screen name="Series" component={SeriesScreen} />
-      </Tab.Navigator>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  heroImage: {
-    height: "100%",
-    width: "100%",
-    borderColor: "white",
-    borderWidth: 1,
-    padding: 20,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(127, 0, 255,0.2)",
-  },
-  heroInnerContainer: {
-    height: 100,
-    width: "100%",
-    // borderColor: "green",
-    // borderWidth: 1,
-    position: "absolute",
-    bottom: 0,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-    alignItems: "center",
-    backgroundColor: "transparent",
-  },
-  playBtn: {
-    backgroundColor: "white",
-    height: 40,
-    width: 150,
-    borderRadius: 5,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  myListBtn: {
-    backgroundColor: "rgba(0,0,0,0.8)",
-    height: 40,
-    width: 150,
-    borderRadius: 5,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    gap: 5,
-  },
-});
