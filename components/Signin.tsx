@@ -1,4 +1,3 @@
-import { userState } from "@/atoms/atom";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { ThemedView } from "@/components/ThemedView";
@@ -7,33 +6,22 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useSetRecoilState } from "recoil";
+import Loading from "./Loading";
 
 export default function Signin() {
-  const setUser = useSetRecoilState(userState);
   const { login, loading, error } = useLogin();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleSignin = async () => {
-    const data = await login(email, password);
-
-    if (data) {
-      setUser({
-        Email: email,
-        Password: password,
-      });
-    }
+    await login(email, password);
   };
 
   if (loading) {
-    return <ThemedText>Loading .... </ThemedText>;
+    return <Loading />;
   }
 
-  // if (error) {
-  //   alert("check credential");
-  // }
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <ThemedView style={styles.container}>
