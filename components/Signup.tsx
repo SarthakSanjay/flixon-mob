@@ -6,6 +6,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Loading from "./Loading";
 
 export default function Signup() {
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ export default function Signup() {
   };
 
   if (loading) {
-    return <ThemedView style={{ flex: 1 }}>loading...</ThemedView>;
+    return <Loading />;
   }
   return (
     <SafeAreaView style={{ flex: 1 }}>
