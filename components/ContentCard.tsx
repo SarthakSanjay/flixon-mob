@@ -5,12 +5,16 @@ import { ThemedView } from "./ThemedView";
 export default function ContentCard({
   poster,
   isSearched,
+  movieId,
+  movieTitle,
 }: {
   poster: string;
   isSearched: boolean | null;
+  movieId: string;
+  movieTitle: string;
 }) {
   const router = useRouter();
-  const movie = { id: "60c72b2f9e1d3b76f8d32f8a", title: "titanic" };
+  const movie = { id: movieId, title: movieTitle };
   const handleMoviePress = (movie: { id: string; title: string }) => {
     router.push({
       pathname: "/movie_details",
