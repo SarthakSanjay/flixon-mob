@@ -1,8 +1,10 @@
-import useContent from "@/hooks/useContent";
-import { ScrollView, StyleSheet } from "react-native";
+import { ActivityIndicator, ScrollView, StyleSheet } from "react-native";
 import { ThemedView } from "./ThemedView";
 import { ThemedText } from "./ThemedText";
 import ContentCard from "./ContentCard";
+import { useEffect, useState } from "react";
+import { Movie } from "@/types/movie";
+import { useMovie } from "@/hooks/useMovie";
 
 export default function ContentSlider({
   genre,
@@ -11,7 +13,20 @@ export default function ContentSlider({
   genre: string;
   type: string;
 }) {
-  const content = useContent(type);
+  const { getMoviesByGenre, loading, error } = useMovie();
+  const [movies, setMovies] = useState<Movie[] | null>([]);
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      const data = await getMoviesByGenre(genre, 10);
+      setMovies(data);
+    };
+    fetchMovie();
+  }, []);
+
+  if (movies === null) {
+    return "";
+  }
   return (
     <>
       <ThemedText style={styles.sliderTitle}>{genre}</ThemedText>
@@ -25,9 +40,18 @@ export default function ContentSlider({
           }}
         >
           <ThemedView style={styles.slider}>
-            {content.map((poster, index) => {
+            {movies?.map((movie: Movie, index) => {
+              if (loading) {
+                return <ActivityIndicator size={"small"} />;
+              }
               return (
-                <ContentCard isSearched={null} key={index} poster={poster} />
+                <ContentCard
+                  isSearched={null}
+                  key={index}
+                  poster={movie.image.poster}
+                  movieId={movie._id}
+                  movieTitle={movie.name}
+                />
               );
             })}
           </ThemedView>
